@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-950 text-slate-100 selection:bg-emerald-500 selection:text-slate-950">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Keep Talking: TAC-DEFUSE PRO</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    .font-mono-tech { font-family: 'Share Tech Mono', monospace; }
+    .font-digital { font-family: 'Orbitron', sans-serif; }
+    
+    /* Screen Glitch & CRT line effects */
+    .crt-overlay {
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+    }
+
+    /* Screws for military box effect */
+    .screw {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #475569, #0f172a);
+      box-shadow: inset 1px 1px 1px rgba(255,255,255,0.2), 1px 1px 2px rgba(0,0,0,0.8);
+      position: relative;
+    }
+    .screw::after {
+      content: '';
+      position: absolute;
+      top: 5px; left: 2px; width: 8px; height: 2px;
+      background: #1e293b;
+      transform: rotate(45deg);
+    }
+
+    /* Glow utilities */
+    .glow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+    .glow-emerald { box-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+    .glow-amber { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); }
+    .glow-purple { box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+
+    /* Printable Manual styling */
+    @media print {
+      body * { visibility: hidden; }
+      #manual-modal, #manual-modal * { visibility: visible; }
+      #manual-modal { 
+        position: absolute; left: 0; top: 0; width: 100%; height: auto; 
+        background: white !important; color: black !important; display: block !important; 
+      }
+      .no-print { display: none !important; }
+      .print-border { border: 1px solid #000 !important; }
+      .print-bg { background: #f8fafc !important; color: #000 !important; }
+    }
+  </style>
+</head>
+<body class="h-full flex flex-col font-sans antialiased overflow-x-hidden select-none bg-slate-950 text-slate-100">
+
+  <!-- TOP BAR / HEADER CONTROL PANEL -->
+  <header class="bg-slate-900 border-b-2 border-slate-800 p-3 sticky top-0 z-30 shadow-xl">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-2">
+        <div class="w-3 h-3 rounded-full bg-red-600 animate-pulse glow-red"></div>
+        <h1 class="font-digital text-lg md:text-xl font-bold tracking-wider text-slate-100 uppercase">
+          TAC-DEFUSE <span class="text-xs px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">v4.0 MAX</span>
+        </h1>
+      </div>
+
+      <!-- Action Buttons & Audio Toggle -->
+      <div class="flex items-center gap-2">
+        <button id="btn-sound-toggle" onclick="toggleAudio()" class="px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-700 text-xs font-mono-tech flex items-center gap-1.5 transition">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-text">SONIDO ON</span>
+        </button>
+
+        <button onclick="openManual()" class="px-3 py-1.5 rounded-lg bg-emerald-600/20 border border-emerald-500/40 text-emerald-400 hover:bg-emerald-600/30 text-xs font-mono-tech font-bold flex items-center gap-1 transition">
+          📖 MANUAL EXPERTO
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-6xl w-full mx-auto p-3 md:p-6 flex flex-col gap-6 justify-start">
+    
+    <!-- ========================================== -->
+    <!-- PRE-GAME SETUP PANEL (CONFIGURACIÓN)       -->
+    <!-- ========================================== -->
+    <section id="panel-config" class="bg-slate-900 border-2 border-slate-700 rounded-xl p-5 shadow-2xl relative">
+      <div class="crt-overlay absolute inset-0"></div>
+      
+      <!-- Screws -->
+      <div class="screw absolute top-2 left-2"></div>
+      <div class="screw absolute top-2 right-2"></div>
+      <div class="screw absolute bottom-2 left-2"></div>
+      <div class="screw absolute bottom-2 right-2"></div>
+
+      <div class="relative z-10 space-y-5">
+        <div class="border-b border-slate-800 pb-3 text-center sm:text-left flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="font-digital text-lg font-bold text-amber-400">CONFIGURACIÓN DE MISIÓN DE DESACTIVACIÓN</h2>
+            <p class="text-xs font-mono-tech text-slate-400">Personaliza los parámetros del explosivo antes de armar la bomba.</p>
+          </div>
+          <span class="text-xs font-mono-tech px-3 py-1 rounded bg-slate-950 text-emerald-400 border border-emerald-500/30 w-fit self-center sm:self-auto">
+            MODO HACKER TÁCTICO
+          </span>
+        </div>
+
+        <!-- Controls Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          
+          <!-- Timer Selector -->
+          <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-col justify-between">
+            <label for="config-time" class="text-xs font-mono-tech text-slate-300 font-bold mb-2 flex items-center gap-2">
+              <span>⏱️</span> TIEMPO MÁXIMO (MINUTOS):
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="range" id="config-time" min="1" max="15" step="1" value="3" oninput="document.getElementById('val-time').textContent = this.value + ' MIN'" class="w-full accent-amber-500 bg-slate-800 rounded h-2">
+              <span id="val-time" class="font-digital text-base font-bold text-amber-400 w-20 text-right">3 MIN</span>
+            </div>
+          </div>
+
+          <!-- Max Strikes Selector -->
+          <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-col justify-between">
+            <label for="config-strikes" class="text-xs font-mono-tech text-slate-300 font-bold mb-2 flex items-center gap-2">
+              <span>💥</span> MÁXIMO ERRORES (STRIKES):
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="range" id="config-strikes" min="1" max="5" step="1" value="3" oninput="document.getElementById('val-strikes').textContent = this.value + ' FALLOS'" class="w-full accent-red-500 bg-slate-800 rounded h-2">
+              <span id="val-strikes" class="font-digital text-base font-bold text-red-400 w-24 text-right">3 FALLOS</span>
+            </div>
+          </div>
+
+          <!-- Active Modules Count -->
+          <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex flex-col justify-between">
+            <label for="config-modules" class="text-xs font-mono-tech text-slate-300 font-bold mb-2 flex items-center gap-2">
+              <span>🧩</span> MÓDULOS ACTIVOS:
+            </label>
+            <div class="flex items-center gap-3">
+              <input type="range" id="config-modules" min="3" max="6" step="1" value="4" oninput="document.getElementById('val-modules').textContent = this.value + ' MÓD.'" class="w-full accent-emerald-500 bg-slate-800 rounded h-2">
+              <span id="val-modules" class="font-digital text-base font-bold text-emerald-400 w-20 text-right">4 MÓD.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Arm Bomb Button -->
+        <button onclick="startGame()" class="w-full py-4 rounded-xl font-digital font-black text-lg tracking-widest bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-slate-950 shadow-2xl glow-emerald transition uppercase">
+          💣 ARMAR BOMBA E INICIAR MISIÓN
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ACTIVE BOMB DASHBOARD (RELOJ & STRIKES)    -->
+    <!-- ========================================== -->
+    <section id="panel-dashboard" class="hidden bg-slate-900/90 border-2 border-slate-700 rounded-xl p-4 shadow-2xl relative overflow-hidden backdrop-blur">
+      <div class="crt-overlay absolute inset-0"></div>
+
+      <!-- Screws -->
+      <div class="screw absolute top-2 left-2"></div>
+      <div class="screw absolute top-2 right-2"></div>
+      <div class="screw absolute bottom-2 left-2"></div>
+      <div class="screw absolute bottom-2 right-2"></div>
+
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10 px-2">
+        
+        <!-- Digital Timer -->
+        <div class="flex flex-col items-center md:items-start">
+          <span class="text-[10px] font-mono-tech uppercase text-slate-400 tracking-widest">TIEMPO DE CUENTA ATRÁS</span>
+          <div id="timer-display" class="font-digital text-4xl sm:text-5xl font-black text-red-500 tracking-wider glow-red bg-black/70 px-4 py-1 rounded border border-red-900/50 mt-0.5">
+            03:00
+          </div>
+        </div>
+
+        <!-- Serial Number -->
+        <div class="flex flex-col items-center">
+          <span class="text-[10px] font-mono-tech uppercase text-slate-400 tracking-widest mb-1">Nº DE SERIE DISPOSITIVO</span>
+          <div id="serial-display" class="font-mono-tech font-bold text-base text-amber-400 bg-slate-950 px-4 py-1.5 rounded border border-amber-500/40 tracking-widest">
+            TX-784-B9
+          </div>
+        </div>
+
+        <!-- Strike Counter LEDs -->
+        <div class="flex flex-col items-center">
+          <span class="text-[10px] font-mono-tech uppercase text-slate-400 tracking-widest mb-1">ERRORES / STRIKES</span>
+          <div id="strikes-container" class="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800">
+            <!-- Dynamic strike LEDs -->
+          </div>
+        </div>
+
+        <!-- Reset Button -->
+        <button onclick="abortMission()" class="px-4 py-2 rounded-lg font-mono-tech text-xs font-bold bg-slate-800 hover:bg-slate-700 text-red-400 border border-red-500/30 transition uppercase">
+          ABORTAR MISIÓN
+        </button>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- MODULES GRID CONTAINER                     -->
+    <!-- ========================================== -->
+    <div id="modules-grid" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      
+      <!-- ========================================== -->
+      <!-- MODULE 1: MORSE CODE                      -->
+      <!-- ========================================== -->
+      <section id="mod-card-0" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative shadow-lg">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <h2 class="font-digital text-xs font-bold tracking-wider text-slate-200">MOD 01: CÓDIGO MORSE</h2>
+          </div>
+          <div id="status-mod-0" class="w-4 h-4 rounded-full bg-slate-800 border border-slate-700"></div>
+        </div>
+
+        <div class="my-3 flex flex-col items-center justify-center bg-slate-950 p-3 rounded-lg border border-slate-800 min-h-[110px] relative">
+          <div id="morse-led" class="w-12 h-12 rounded-full bg-slate-800 border-4 border-slate-700 transition-all duration-75"></div>
+          <span class="text-[10px] font-mono-tech text-slate-500 mt-2 uppercase tracking-widest">TRANSMITIENDO...</span>
+        </div>
+
+        <div class="mb-3">
+          <div class="flex justify-between text-[10px] font-mono-tech text-slate-400 mb-1">
+            <span>VELOCIDAD MORSE</span>
+            <span id="speed-label" class="text-amber-400">1.0x</span>
+          </div>
+          <input type="range" id="morse-speed" min="0.5" max="1.5" step="0.25" value="1.0" oninput="updateMorseSpeed(this.value)" class="w-full accent-amber-500 bg-slate-800 rounded h-1.5 cursor-pointer">
+        </div>
+
+        <div class="space-y-2">
+          <select id="morse-answer-select" class="w-full bg-slate-950 border border-slate-700 text-slate-200 text-xs font-mono-tech rounded p-2 focus:outline-none focus:border-amber-500">
+            <option value="" disabled selected>SELECCIONAR PALABRA...</option>
+          </select>
+          <button onclick="submitMorse()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-amber-400 font-mono-tech text-xs font-bold rounded border border-amber-500/30 transition uppercase">
+            DESACTIVAR MORSE
+          </button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- MODULE 2: NATO PHONETIC                   -->
+      <!-- ========================================== -->
+      <section id="mod-card-1" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative shadow-lg">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+            <h2 class="font-digital text-xs font-bold tracking-wider text-slate-200">MOD 02: FONÉTICO NATO</h2>
+          </div>
+          <div id="status-mod-1" class="w-4 h-4 rounded-full bg-slate-800 border border-slate-700"></div>
+        </div>
+
+        <div class="my-3 bg-slate-950 p-3 rounded-lg border border-slate-800 min-h-[110px] flex flex-col items-center justify-center text-center">
+          <span class="text-[10px] font-mono-tech text-slate-500 uppercase tracking-widest mb-1">CÓDIGO DE TRANSMISIÓN</span>
+          <div id="nato-display" class="font-mono-tech font-bold text-emerald-400 text-xs leading-relaxed tracking-wider uppercase">
+            --- - --- - ---
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-1.5 mt-auto">
+          <button onclick="pressNatoColor('ROJO')" class="py-2.5 rounded bg-red-600 hover:bg-red-500 active:scale-95 text-white font-digital font-bold text-[10px] shadow border border-red-400/30 transition">ROJO</button>
+          <button onclick="pressNatoColor('AZUL')" class="py-2.5 rounded bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-digital font-bold text-[10px] shadow border border-blue-400/30 transition">AZUL</button>
+          <button onclick="pressNatoColor('VERDE')" class="py-2.5 rounded bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-digital font-bold text-[10px] shadow border border-emerald-400/30 transition">VERDE</button>
+          <button onclick="pressNatoColor('AMARILLO')" class="py-2.5 rounded bg-amber-500 hover:bg-amber-400 active:scale-95 text-slate-950 font-digital font-bold text-[10px] shadow border border-amber-300/30 transition">AMARILLO</button>
+          <button onclick="pressNatoColor('BLANCO')" class="col-span-2 py-2.5 rounded bg-slate-100 hover:bg-white active:scale-95 text-slate-950 font-digital font-bold text-[10px] shadow border border-slate-300 transition">BLANCO</button>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- MODULE 3: TAP CODE (3x3 MATRIX GRID)     -->
+      <!-- ========================================== -->
+      <section id="mod-card-2" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative shadow-lg">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+            <h2 class="font-digital text-xs font-bold tracking-wider text-slate-200">MOD 03: MATRIZ TAP</h2>
+          </div>
+          <div id="status-mod-2" class="w-4 h-4 rounded-full bg-slate-800 border border-slate-700"></div>
+        </div>
+
+        <div class="mt-2 flex items-center justify-between bg-slate-950 px-3 py-1 rounded border border-slate-800">
+          <span class="text-[10px] font-mono-tech text-slate-400 uppercase">SECUENCIA FLASH</span>
+          <button onclick="playTapSequence()" class="px-2 py-0.5 bg-purple-900/50 hover:bg-purple-800 text-purple-300 border border-purple-500/40 rounded text-[10px] font-mono-tech font-bold transition">
+            ▶ REPRODUCIR
+          </button>
+        </div>
+
+        <div class="my-2 grid grid-cols-3 gap-1 bg-slate-950 p-2 rounded-lg border border-slate-800">
+          <button onclick="pressTapCell(1)" id="tap-cell-1" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">1,1</button>
+          <button onclick="pressTapCell(2)" id="tap-cell-2" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">1,2</button>
+          <button onclick="pressTapCell(3)" id="tap-cell-3" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">1,3</button>
+          <button onclick="pressTapCell(4)" id="tap-cell-4" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">2,1</button>
+          <button onclick="pressTapCell(5)" id="tap-cell-5" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">2,2</button>
+          <button onclick="pressTapCell(6)" id="tap-cell-6" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">2,3</button>
+          <button onclick="pressTapCell(7)" id="tap-cell-7" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">3,1</button>
+          <button onclick="pressTapCell(8)" id="tap-cell-8" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">3,2</button>
+          <button onclick="pressTapCell(9)" id="tap-cell-9" class="h-9 bg-slate-900 hover:bg-slate-800 active:bg-purple-600 rounded text-xs font-mono-tech text-slate-300 border border-slate-800 transition">3,3</button>
+        </div>
+
+        <div class="flex items-center justify-between text-[10px] font-mono-tech text-slate-400">
+          <span>PROGRESO DE ENTRADA:</span>
+          <div class="flex gap-1">
+            <span id="tap-step-1" class="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></span>
+            <span id="tap-step-2" class="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- MODULE 4: CABLES TÁCTICOS (WIRES)         -->
+      <!-- ========================================== -->
+      <section id="mod-card-3" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative shadow-lg">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            <h2 class="font-digital text-xs font-bold tracking-wider text-slate-200">MOD 04: CORTAR CABLES</h2>
+          </div>
+          <div id="status-mod-3" class="w-4 h-4 rounded-full bg-slate-800 border border-slate-700"></div>
+        </div>
+
+        <!-- Indicator LED -->
+        <div class="mt-2 flex items-center justify-between bg-slate-950 px-3 py-1.5 rounded border border-slate-800">
+          <span class="text-[10px] font-mono-tech text-slate-400 uppercase">LED DE ESTADO CABLES:</span>
+          <div id="wire-status-led" class="w-4 h-4 rounded-full bg-red-600 glow-red"></div>
+        </div>
+
+        <!-- 5 Wires container -->
+        <div id="wires-container" class="my-4 bg-slate-950 p-4 rounded-lg border border-slate-800 flex justify-around items-center h-28">
+          <!-- Wires injected via JS -->
+        </div>
+
+        <p class="text-[10px] font-mono-tech text-slate-400 text-center uppercase">PULSA EL CABLE CORRECTO PARA CORTARLO</p>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- MODULE 5: INTERRUPTORES BINARIOS          -->
+      <!-- ========================================== -->
+      <section id="mod-card-4" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative shadow-lg">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <h2 class="font-digital text-xs font-bold tracking-wider text-slate-200">MOD 05: INTERRUPTORES BINARIOS</h2>
+          </div>
+          <div id="status-mod-4" class="w-4 h-4 rounded-full bg-slate-800 border border-slate-700"></div>
+        </div>
+
+        <div class="my-2 bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col items-center justify-center text-center">
+          <span class="text-[10px] font-mono-tech text-slate-500 uppercase tracking-widest mb-1">CÓDIGO DE ENTRADA REQUERIDO</span>
+          <div id="binary-target-display" class="font-mono-tech font-black text-amber-400 text-xl tracking-widest">
+            VALOR: 11
+          </div>
+        </div>
+
+        <!-- 4 Switches -->
+        <div class="grid grid-cols-4 gap-2 my-2">
+          <button onclick="toggleBinarySwitch(0)" id="switch-0" class="py-3 bg-slate-950 hover:bg-slate-800 text-slate-400 border border-slate-700 rounded flex flex-col items-center font-mono-tech text-xs transition">
+            <span class="text-[9px] text-slate-500">8</span>
+            <span id="sw-val-0" class="font-bold text-sm">0</span>
+          </button>
+          <button onclick="toggleBinarySwitch(1)" id="switch-1" class="py-3 bg-slate-950 hover:bg-slate-800 text-slate-400 border border-slate-700 rounded flex flex-col items-center font-mono-tech text-xs transition">
+            <span class="text-[9px] text-slate-500">4</span>
+            <span id="sw-val-1" class="font-bold text-sm">0</span>
+          </button>
+          <button onclick="toggleBinarySwitch(2)" id="switch-2" class="py-3 bg-slate-950 hover:bg-slate-800 text-slate-400 border border-slate-700 rounded flex flex-col items-center font-mono-tech text-xs transition">
+            <span class="text-[9px] text-slate-500">2</span>
+            <span id="sw-val-2" class="font-bold text-sm">0</span>
+          </button>
+          <button onclick="toggleBinarySwitch(3)" id="switch-3" class="py-3 bg-slate-950 hover:bg-slate-800 text-slate-400 border border-slate-700 rounded flex flex-col items-center font-mono-tech text-xs transition">
+            <span class="text-[9px] text-slate-500">1</span>
+            <span id="sw-val-3" class="font-bold text-sm">0</span>
+          </button>
+        </div>
+
+        <button onclick="submitBinary()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-600 text-emerald-400 font-mono-tech text-xs font-bold rounded border border-emerald-500/30 transition uppercase">
+          DESCONECTAR INTERRUPTORES
+        </button>
+      </section>
+
+      <!-- ========================================== -->
+      <!-- MODULE 6: FLECHAS / SEMÁFORO TÁCTICO     -->
+      <!-- ========================================== -->
+      <section id="mod-card-5" class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between relative shadow-lg">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-500"></span>
+            <h2 class="font-digital text-xs font-bold tracking-wider text-slate-200">MOD 06: SEMÁFORO TÁCTICO</h2>
+          </div>
+          <div id="status-mod-5" class="w-4 h-4 rounded-full bg-slate-800 border border-slate-700"></div>
+        </div>
+
+        <div class="my-2 bg-slate-950 p-3 rounded-lg border border-slate-800 flex flex-col items-center justify-center text-center">
+          <span class="text-[10px] font-mono-tech text-slate-500 uppercase tracking-widest mb-1">SECUENCIA DE DIRECCIÓN</span>
+          <div id="arrow-sequence-display" class="font-mono-tech font-bold text-cyan-400 text-lg tracking-widest">
+            ⬆️ ➡️ ⬇️
+          </div>
+        </div>
+
+        <!-- Direction Arrow pad -->
+        <div class="grid grid-cols-3 gap-1.5 max-w-[180px] mx-auto my-2">
+          <div></div>
+          <button onclick="pressDirection('UP')" class="py-2.5 bg-slate-950 hover:bg-slate-800 active:bg-cyan-600 rounded border border-slate-700 font-digital font-bold text-cyan-400 transition text-sm">⬆️</button>
+          <div></div>
+          <button onclick="pressDirection('LEFT')" class="py-2.5 bg-slate-950 hover:bg-slate-800 active:bg-cyan-600 rounded border border-slate-700 font-digital font-bold text-cyan-400 transition text-sm">⬅️</button>
+          <button onclick="pressDirection('DOWN')" class="py-2.5 bg-slate-950 hover:bg-slate-800 active:bg-cyan-600 rounded border border-slate-700 font-digital font-bold text-cyan-400 transition text-sm">⬇️</button>
+          <button onclick="pressDirection('RIGHT')" class="py-2.5 bg-slate-950 hover:bg-slate-800 active:bg-cyan-600 rounded border border-slate-700 font-digital font-bold text-cyan-400 transition text-sm">➡️</button>
+        </div>
+
+        <p class="text-[10px] font-mono-tech text-slate-400 text-center uppercase">PRESIONA LA FLECHA DE RESPUESTA</p>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: VICTORY SCREEN                      -->
+  <!-- ========================================== -->
+  <div id="modal-victory" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-emerald-500 rounded-xl max-w-md w-full p-6 text-center shadow-2xl glow-emerald">
+      <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 border border-emerald-500 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 animate-bounce">
+        ✓
+      </div>
+      <h2 class="font-digital text-2xl font-black text-emerald-400 tracking-wider mb-2">¡BOMBA DESACTIVADA!</h2>
+      <p class="text-sm font-mono-tech text-slate-300 mb-6">
+        Excelente trabajo en equipo. La amenaza ha sido neutralizada con éxito.
+      </p>
+
+      <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 mb-6 text-left font-mono-tech text-xs space-y-2">
+        <div class="flex justify-between">
+          <span class="text-slate-400">TIEMPO RESTANTE:</span>
+          <span id="vic-time" class="text-emerald-400 font-bold">01:45</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">STRIKES COMETIDOS:</span>
+          <span id="vic-strikes" class="text-amber-400 font-bold">1 / 3</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Nº SERIE BOMBA:</span>
+          <span id="vic-serial" class="text-cyan-400 font-bold">TX-784-B9</span>
+        </div>
+      </div>
+
+      <button onclick="closeVictoryModal(); showConfigPanel();" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-digital font-bold text-sm rounded-lg transition shadow-lg uppercase">
+        VOLVER A CONFIGURAR MISIÓN
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: DEFEAT / BOOM SCREEN                -->
+  <!-- ========================================== -->
+  <div id="modal-defeat" class="hidden fixed inset-0 z-50 bg-red-950/90 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border-2 border-red-600 rounded-xl max-w-md w-full p-6 text-center shadow-2xl glow-red">
+      <div class="w-16 h-16 bg-red-600/20 text-red-500 border border-red-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 animate-pulse">
+        💥
+      </div>
+      <h2 class="font-digital text-3xl font-black text-red-500 tracking-wider mb-2">¡¡BOOM!!</h2>
+      <p class="font-mono-tech text-xs text-red-400 tracking-widest uppercase mb-4">MISIÓN FALLIDA - LA BOMBA HA EXPLOTADO</p>
+
+      <p id="defeat-reason" class="text-xs font-mono-tech text-slate-400 mb-6">
+        Se agotó el tiempo límite de desactivación.
+      </p>
+
+      <button onclick="closeDefeatModal(); showConfigPanel();" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white font-digital font-bold text-sm rounded-lg transition shadow-lg uppercase">
+        NUEVA MISIÓN
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL / VIEW: MANUAL DEL EXPERTO           -->
+  <!-- ========================================== -->
+  <div id="manual-modal" class="hidden fixed inset-0 z-50 bg-slate-950/95 overflow-y-auto p-4 sm:p-6">
+    <div class="max-w-4xl mx-auto bg-slate-900 border border-slate-700 rounded-xl p-6 text-slate-200 shadow-2xl relative print-bg">
+      
+      <!-- Close Button (Screen Only) -->
+      <div class="no-print flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+        <span class="font-digital text-amber-400 font-bold text-sm">DOC-REF: PROTOCOLO TÁCTICO DE DESACTIVACIÓN</span>
+        <div class="flex gap-2">
+          <button onclick="window.print()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-mono-tech text-xs rounded border border-slate-700">
+            🖨️ IMPRIMIR / PDF
+          </button>
+          <button onclick="closeManual()" class="px-3 py-1.5 bg-red-600/20 text-red-400 hover:bg-red-600/30 font-mono-tech text-xs rounded border border-red-500/30">
+            ✖ CERRAR MANUAL
+          </button>
+        </div>
+      </div>
+
+      <!-- Manual Content Document -->
+      <div class="space-y-6 text-left">
+        <div class="text-center border-b border-slate-800 pb-4">
+          <h1 class="font-digital text-xl sm:text-2xl font-black text-slate-100 tracking-wider uppercase print:text-black">MANUAL DEL EXPERTO EN DESACTIVACIÓN</h1>
+          <p class="font-mono-tech text-xs text-amber-500 mt-1 print:text-black font-bold">CLASIFICACIÓN: TOP SECRET // SOLO PARA OJOS DEL EXPERTO</p>
+          <p class="text-xs text-slate-400 mt-2 print:text-black">
+            <b>REGLA DE ORO:</b> El desactivador interactúa con la pantalla de la bomba. El experto TIENE este manual y NUNCA mira la pantalla.
+          </p>
+        </div>
+
+        <!-- Módulo 1 Manual -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 print-border print-bg">
+          <h2 class="font-digital text-sm font-bold text-amber-400 mb-2 print:text-black">
+            MÓDULO 01: CÓDIGO MORSE
+          </h2>
+          <p class="text-xs text-slate-300 mb-3 print:text-black">
+            El desactivador verá un LED parpadeando (impulsos cortos · y largos -). Decodifique la palabra de 3 letras e indíquele cuál seleccionar:
+          </p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono-tech text-xs text-slate-300 print:text-black">
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">A: · -</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">D: - · ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">E: ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">F: · · - ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">G: - - ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">I: · ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">L: · - · ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">M: - -</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">O: - - -</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">P: · - - ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">R: · - ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">S: · · ·</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">T: -</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">U: · · -</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">X: - · · -</div>
+            <div class="bg-slate-900 p-1.5 rounded border border-slate-800 print-border">Z: - - · ·</div>
+          </div>
+        </div>
+
+        <!-- Módulo 2 Manual -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 print-border print-bg">
+          <h2 class="font-digital text-sm font-bold text-blue-400 mb-2 print:text-black">
+            MÓDULO 02: PROTOCOLO FONÉTICO NATO
+          </h2>
+          <p class="text-xs text-slate-300 mb-2 print:text-black">
+            El desactivador lee un código de 3 palabras (ej: <i>DELTA - SIERRA - FOX</i>). Aplique la <b>primera regla que se cumpla</b>:
+          </p>
+          <ol class="list-decimal list-inside space-y-1 text-xs font-mono-tech text-slate-300 bg-slate-900 p-3 rounded border border-slate-800 print-border print:text-black">
+            <li>Si la secuencia contiene <span class="text-amber-400 font-bold">DELTA</span> o <span class="text-amber-400 font-bold">ZULU</span> &rarr; Pulsar <b>AMARILLO</b>.</li>
+            <li>Si no, si la PRIMERA palabra empieza por Vocal (A, E, I, O, U) &rarr; Pulsar <b>AZUL</b>.</li>
+            <li>Si no, si la secuencia contiene <span class="text-slate-100 font-bold">BRAVO</span> o <span class="text-slate-100 font-bold">CHARLIE</span> &rarr; Pulsar <b>BLANCO</b>.</li>
+            <li>Si no, si la ÚLTIMA palabra tiene 6 o más letras &rarr; Pulsar <b>ROJO</b>.</li>
+            <li>En cualquier otro caso &rarr; Pulsar <b>VERDE</b>.</li>
+          </ol>
+        </div>
+
+        <!-- Módulo 3 Manual -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 print-border print-bg">
+          <h2 class="font-digital text-sm font-bold text-purple-400 mb-2 print:text-black">
+            MÓDULO 03: MATRIZ TAP 3x3
+          </h2>
+          <p class="text-xs text-slate-300 mb-2 print:text-black">
+            El desactivador observa 2 destellos en la rejilla 3x3 (Destello 1 y Destello 2):
+          </p>
+          <ul class="space-y-1 text-xs font-mono-tech text-slate-300 bg-slate-900 p-3 rounded border border-slate-800 print-border print:text-black">
+            <li>• <b>Si están en la MISMA FILA:</b> Pulsar Casilla Destello 2, luego Casilla Destello 1.</li>
+            <li>• <b>Si están en la MISMA COLUMNA:</b> Pulsar Casilla Central (2,2), luego Casilla Destello 1.</li>
+            <li>• <b>En cualquier otro caso:</b> Pulsar Casilla Destello 1, luego Casilla Destello 2.</li>
+          </ul>
+        </div>
+
+        <!-- Módulo 4 Manual -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 print-border print-bg">
+          <h2 class="font-digital text-sm font-bold text-red-400 mb-2 print:text-black">
+            MÓDULO 04: CORTAR CABLES TÁCTICOS
+          </h2>
+          <p class="text-xs text-slate-300 mb-2 print:text-black">
+            Consulte el <b>LED de estado de cables</b> y el <b>Número de Serie del dispositivo</b>:
+          </p>
+          <ul class="space-y-1.5 text-xs font-mono-tech text-slate-300 bg-slate-900 p-3 rounded border border-slate-800 print-border print:text-black">
+            <li>• <b>Si el LED es ROJO:</b> Cortar el 1º Cable si el Nº de Serie termina en Número PAR. De lo contrario, cortar el 4º Cable (Negro).</li>
+            <li>• <b>Si el LED es AZUL:</b> Cortar el Último Cable (Blanco) si hay 2 o más cables Rojos. De lo contrario, cortar el 2º Cable (Azul).</li>
+            <li>• <b>Si el LED es VERDE:</b> Cortar el 3º Cable (Amarillo) si el Nº de Serie contiene alguna Vocal (A, E, I, O, U). De lo contrario, cortar el Último Cable (Blanco).</li>
+          </ul>
+        </div>
+
+        <!-- Módulo 5 Manual -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 print-border print-bg">
+          <h2 class="font-digital text-sm font-bold text-emerald-400 mb-2 print:text-black">
+            MÓDULO 05: INTERRUPTORES BINARIOS
+          </h2>
+          <p class="text-xs text-slate-300 mb-2 print:text-black">
+            El desactivador ve un VALOR OBJETIVO (del 1 al 15). Indíquele encender los interruptores (8, 4, 2, 1) cuya suma sea igual al valor objetivo:
+          </p>
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-1.5 font-mono-tech text-[11px] text-slate-300 print:text-black">
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 3: 0-0-1-1</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 5: 0-1-0-1</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 7: 0-1-1-1</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 9: 1-0-0-1</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 10: 1-0-1-0</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 11: 1-0-1-1</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 12: 1-1-0-0</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 13: 1-1-0-1</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 14: 1-1-1-0</div>
+            <div class="bg-slate-900 p-1 rounded border border-slate-800 print-border">VALOR 15: 1-1-1-1</div>
+          </div>
+        </div>
+
+        <!-- Módulo 6 Manual -->
+        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 print-border print-bg">
+          <h2 class="font-digital text-sm font-bold text-cyan-400 mb-2 print:text-black">
+            MÓDULO 06: SEMÁFORO TÁCTICO DE DIRECCIONES
+          </h2>
+          <p class="text-xs text-slate-300 mb-2 print:text-black">
+            El desactivador lee una secuencia de 3 flechas (ej: ⬆️ ➡️ ⬇️). Aplique la <b>primera regla que coincida</b>:
+          </p>
+          <ol class="list-decimal list-inside space-y-1 text-xs font-mono-tech text-slate-300 bg-slate-900 p-3 rounded border border-slate-800 print-border print:text-black">
+            <li>Si la mayoría de las flechas son ⬆️ o ➡️ &rarr; Pulsar la flechas <b>ABAJO (⬇️)</b>.</li>
+            <li>Si la primera y la última flecha son IDÉNTICAS &rarr; Pulsar la flechas <b>ARRIBA (⬆️)</b>.</li>
+            <li>Si la secuencia contiene al menos una flecha ⬅️ &rarr; Pulsar la flechas <b>DERECHA (➡️)</b>.</li>
+            <li>En cualquier otro caso &rarr; Pulsar la flechas <b>IZQUIERDA (⬅️)</b>.</li>
+          </ol>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Engine Logic -->
+  <script>
+    /* ===================================================================
+       AUDIO ENGINE (Web Audio API Synthesizer)
+       =================================================================== */
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('sound-icon').innerText = soundEnabled ? '🔊' : '🔇';
+      document.getElementById('sound-text').innerText = soundEnabled ? 'SONIDO ON' : 'MUTE';
+    }
+
+    function playBeep(freq = 600, duration = 0.1, type = 'sine') {
+      if (!soundEnabled) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e){}
+    }
+
+    function playTick() {
+      playBeep(900, 0.03, 'square');
+    }
+
+    function playClick() {
+      playBeep(450, 0.05, 'triangle');
+    }
+
+    function playErrorSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.35);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.35);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.35);
+      } catch(e){}
+    }
+
+    function playSuccessSound() {
+      if (!soundEnabled) return;
+      playBeep(523.25, 0.1);
+      setTimeout(() => playBeep(659.25, 0.1), 90);
+      setTimeout(() => playBeep(783.99, 0.2), 180);
+    }
+
+    function playExplosionSound() {
+      if (!soundEnabled) return;
+      initAudio();
+      try {
+        const bufferSize = audioCtx.sampleRate * 1.5;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(800, audioCtx.currentTime);
+        filter.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + 1.5);
+
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 1.5);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        noise.start();
+      } catch(e){}
+    }
+
+    /* ===================================================================
+       GLOBAL GAME STATE
+       =================================================================== */
+    const MORSE_DICT = {
+      'A': '.-', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'I': '..', 
+      'L': '.-..', 'M': '--', 'O': '---', 'P': '.--.', 'R': '.-.', 'S': '...', 
+      'T': '-', 'U': '..-', 'X': '-..-', 'Z': '--..'
+    };
+
+    const MORSE_WORDS = ['SOS', 'FOX', 'RAD', 'TAC', 'RED', 'GAS', 'LUZ', 'SOL', 'MAR', 'PAN', 'RIO', 'PAX'];
+
+    const NATO_WORDS = [
+      'ALPHA', 'BRAVO', 'CHARLIE', 'DELTA', 'ECHO', 'FOXTROT', 'GOLF', 'HOTEL', 
+      'INDIA', 'JULIETT', 'KILO', 'LIMA', 'MIKE', 'NOVEMBER', 'OSCAR', 'PAPA', 
+      'QUEBEC', 'ROMEO', 'SIERRA', 'TANGO', 'UNIFORM', 'VICTOR', 'WHISKEY', 'ZULU'
+    ];
+
+    let gameState = 'IDLE'; // 'IDLE', 'RUNNING', 'DEFUSED', 'EXPLODED'
+    let timerInterval = null;
+    let timeRemaining = 180;
+    let maxAllowedStrikes = 3;
+    let strikes = 0;
+    let activeModulesCount = 4;
+    let activeModuleIndices = [];
+    let solvedModulesState = [];
+    let serialNumber = '';
+
+    // Module states
+    let secretMorseWord = '';
+    let morseTimeoutIds = [];
+    let morseSpeedMultiplier = 1.0;
+
+    let secretNatoSequence = [];
+    let targetNatoColor = '';
+
+    let secretTapSequence = [];
+    let requiredTapAnswers = [];
+    let userTapInputs = [];
+
+    let wireColorsList = [];
+    let wireStatusLed = '';
+    let correctWireIndex = 0;
+    let wireCutState = [];
+
+    let binaryTargetVal = 0;
+    let binaryUserSwitches = [0, 0, 0, 0];
+
+    let arrowSequence = [];
+    let targetDirection = '';
+
+    /* ===================================================================
+       INITIALIZATION & CONFIGURATION
+       =================================================================== */
+    window.onload = function() {
+      populateMorseDropdown();
+    };
+
+    function populateMorseDropdown() {
+      const select = document.getElementById('morse-answer-select');
+      select.innerHTML = '<option value="" disabled selected>SELECCIONAR PALABRA...</option>';
+      MORSE_WORDS.slice().sort().forEach(word => {
+        const opt = document.createElement('option');
+        opt.value = word;
+        opt.textContent = word;
+        select.appendChild(opt);
+      });
+    }
+
+    function generateSerialNumber() {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+      const nums = '0123456789';
+      const c1 = chars[Math.floor(Math.random() * chars.length)];
+      const c2 = chars[Math.floor(Math.random() * chars.length)];
+      const n1 = nums[Math.floor(Math.random() * nums.length)];
+      const n2 = nums[Math.floor(Math.random() * nums.length)];
+      const n3 = nums[Math.floor(Math.random() * nums.length)];
+      const c3 = chars[Math.floor(Math.random() * chars.length)];
+      const n4 = nums[Math.floor(Math.random() * nums.length)];
+      return `${c1}${c2}-${n1}${n2}${n3}-${c3}${n4}`;
+    }
+
+    function showConfigPanel() {
+      gameState = 'IDLE';
+      clearInterval(timerInterval);
+      clearMorseTimeouts();
+      document.getElementById('panel-config').classList.remove('hidden');
+      document.getElementById('panel-dashboard').classList.add('hidden');
+      document.getElementById('modules-grid').classList.add('hidden');
+    }
+
+    function abortMission() {
+      showConfigPanel();
+    }
+
+    function startGame() {
+      initAudio();
+      gameState = 'RUNNING';
+      strikes = 0;
+
+      // Fetch user config values
+      const timeMin = parseInt(document.getElementById('config-time').value);
+      timeRemaining = timeMin * 60;
+      maxAllowedStrikes = parseInt(document.getElementById('config-strikes').value);
+      activeModulesCount = parseInt(document.getElementById('config-modules').value);
+
+      // Generate Serial Number
+      serialNumber = generateSerialNumber();
+      document.getElementById('serial-display').textContent = serialNumber;
+
+      // Select active module indices randomly
+      const allModIndices = [0, 1, 2, 3, 4, 5];
+      allModIndices.sort(() => Math.random() - 0.5);
+      activeModuleIndices = allModIndices.slice(0, activeModulesCount);
+      solvedModulesState = new Array(activeModulesCount).fill(false);
+
+      // Build UI for Strikes & Modules
+      renderStrikesUI();
+      renderActiveModulesUI();
+
+      // Show Dashboard & Modules Grid
+      document.getElementById('panel-config').classList.add('hidden');
+      document.getElementById('panel-dashboard').classList.remove('hidden');
+      document.getElementById('modules-grid').classList.remove('hidden');
+
+      // Setup logic for enabled modules
+      if (activeModuleIndices.includes(0)) setupMorseModule();
+      if (activeModuleIndices.includes(1)) setupNatoModule();
+      if (activeModuleIndices.includes(2)) setupTapModule();
+      if (activeModuleIndices.includes(3)) setupWiresModule();
+      if (activeModuleIndices.includes(4)) setupBinaryModule();
+      if (activeModuleIndices.includes(5)) setupArrowsModule();
+
+      // Start Clock
+      updateTimerUI();
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timeRemaining--;
+        updateTimerUI();
+        if (timeRemaining <= 10 && timeRemaining > 0) {
+          playTick();
+        }
+        if (timeRemaining <= 0) {
+          triggerDefeat("Se agotó el tiempo límite de la bomba.");
+        }
+      }, 1000);
+    }
+
+    function renderStrikesUI() {
+      const container = document.getElementById('strikes-container');
+      container.innerHTML = '';
+      for (let i = 1; i <= maxAllowedStrikes; i++) {
+        const led = document.createElement('div');
+        led.id = `strike-led-${i}`;
+        led.className = 'w-7 h-7 rounded border-2 border-red-950 bg-slate-900 flex items-center justify-center font-digital text-sm font-bold text-slate-800 transition-all duration-300';
+        led.textContent = 'X';
+        container.appendChild(led);
+      }
+    }
+
+    function renderActiveModulesUI() {
+      for (let i = 0; i < 6; i++) {
+        const card = document.getElementById(`mod-card-${i}`);
+        if (activeModuleIndices.includes(i)) {
+          card.classList.remove('hidden');
+          document.getElementById(`status-mod-${i}`).className = 'w-4 h-4 rounded-full bg-slate-800 border border-slate-700';
+        } else {
+          card.classList.add('hidden');
+        }
+      }
+    }
+
+    function updateTimerUI() {
+      const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+      const s = (timeRemaining % 60).toString().padStart(2, '0');
+      document.getElementById('timer-display').textContent = `${m}:${s}`;
+    }
+
+    function registerStrike() {
+      strikes++;
+      playErrorSound();
+
+      // Screen flash red
+      document.body.classList.add('bg-red-950/40');
+      setTimeout(() => document.body.classList.remove('bg-red-950/40'), 200);
+
+      // Accelerate timer slightly on penalty
+      timeRemaining = Math.max(1, timeRemaining - 5);
+      updateTimerUI();
+
+      // Update strikes LEDs
+      for (let i = 1; i <= maxAllowedStrikes; i++) {
+        const led = document.getElementById(`strike-led-${i}`);
+        if (led) {
+          if (i <= strikes) {
+            led.className = 'w-7 h-7 rounded border-2 border-red-500 bg-red-600/40 flex items-center justify-center font-digital text-sm font-bold text-red-500 glow-red';
+          } else {
+            led.className = 'w-7 h-7 rounded border-2 border-red-950 bg-slate-900 flex items-center justify-center font-digital text-sm font-bold text-slate-800';
+          }
+        }
+      }
+
+      if (strikes >= maxAllowedStrikes) {
+        triggerDefeat(`Se ha alcanzado el límite máximo de ${maxAllowedStrikes} fallos (Strikes).`);
+      }
+    }
+
+    function setModuleSolved(modIndex) {
+      const pos = activeModuleIndices.indexOf(modIndex);
+      if (pos !== -1 && !solvedModulesState[pos]) {
+        solvedModulesState[pos] = true;
+        playSuccessSound();
+        document.getElementById(`status-mod-${modIndex}`).className = 'w-4 h-4 rounded-full bg-emerald-500 border border-emerald-400 glow-emerald';
+        checkWinCondition();
+      }
+    }
+
+    function checkWinCondition() {
+      if (solvedModulesState.every(s => s === true)) {
+        gameState = 'DEFUSED';
+        clearInterval(timerInterval);
+        clearMorseTimeouts();
+        playSuccessSound();
+
+        const m = Math.floor(timeRemaining / 60).toString().padStart(2, '0');
+        const s = (timeRemaining % 60).toString().padStart(2, '0');
+        document.getElementById('vic-time').textContent = `${m}:${s}`;
+        document.getElementById('vic-strikes').textContent = `${strikes} / ${maxAllowedStrikes}`;
+        document.getElementById('vic-serial').textContent = serialNumber;
+        document.getElementById('modal-victory').classList.remove('hidden');
+      }
+    }
+
+    function triggerDefeat(reason) {
+      gameState = 'EXPLODED';
+      clearInterval(timerInterval);
+      clearMorseTimeouts();
+      playExplosionSound();
+
+      document.getElementById('defeat-reason').textContent = reason;
+      document.getElementById('modal-defeat').classList.remove('hidden');
+    }
+
+    /* ===================================================================
+       MODULE 1: CÓDIGO MORSE LOGIC
+       =================================================================== */
+    function setupMorseModule() {
+      clearMorseTimeouts();
+      secretMorseWord = MORSE_WORDS[Math.floor(Math.random() * MORSE_WORDS.length)];
+      playMorseLoop();
+    }
+
+    function updateMorseSpeed(val) {
+      morseSpeedMultiplier = parseFloat(val);
+      document.getElementById('speed-label').textContent = `${val}x`;
+      if (gameState === 'RUNNING' && activeModuleIndices.includes(0)) {
+        const pos = activeModuleIndices.indexOf(0);
+        if (!solvedModulesState[pos]) {
+          clearMorseTimeouts();
+          playMorseLoop();
+        }
+      }
+    }
+
+    function clearMorseTimeouts() {
+      morseTimeoutIds.forEach(id => clearTimeout(id));
+      morseTimeoutIds = [];
+    }
+
+    function playMorseLoop() {
+      if (gameState !== 'RUNNING') return;
+      const pos = activeModuleIndices.indexOf(0);
+      if (pos === -1 || solvedModulesState[pos]) return;
+
+      const baseUnit = 240 / morseSpeedMultiplier;
+      let currentTime = 0;
+      const led = document.getElementById('morse-led');
+
+      for (let i = 0; i < secretMorseWord.length; i++) {
+        const char = secretMorseWord[i];
+        const code = MORSE_DICT[char];
+        if (!code) continue;
+
+        for (let j = 0; j < code.length; j++) {
+          const symbol = code[j];
+          const duration = (symbol === '.') ? baseUnit : baseUnit * 3;
+
+          let id1 = setTimeout(() => {
+            if (gameState === 'RUNNING' && !solvedModulesState[pos]) {
+              led.className = 'w-12 h-12 rounded-full bg-amber-400 border-4 border-amber-200 glow-amber scale-105';
+              playBeep(700, duration / 1000, 'sine');
+            }
+          }, currentTime);
+
+          currentTime += duration;
+
+          let id2 = setTimeout(() => {
+            led.className = 'w-12 h-12 rounded-full bg-slate-800 border-4 border-slate-700';
+          }, currentTime);
+
+          morseTimeoutIds.push(id1, id2);
+          currentTime += baseUnit;
+        }
+        currentTime += baseUnit * 2;
+      }
+      currentTime += baseUnit * 5;
+
+      let loopId = setTimeout(() => playMorseLoop(), currentTime);
+      morseTimeoutIds.push(loopId);
+    }
+
+    function submitMorse() {
+      if (gameState !== 'RUNNING') return;
+      const select = document.getElementById('morse-answer-select');
+      if (select.value === secretMorseWord) {
+        clearMorseTimeouts();
+        document.getElementById('morse-led').className = 'w-12 h-12 rounded-full bg-emerald-500 border-4 border-emerald-300 glow-emerald';
+        setModuleSolved(0);
+      } else {
+        registerStrike();
+      }
+    }
+
+    /* ===================================================================
+       MODULE 2: NATO PHONETIC LOGIC
+       =================================================================== */
+    function setupNatoModule() {
+      secretNatoSequence = [];
+      for (let i = 0; i < 3; i++) {
+        secretNatoSequence.push(NATO_WORDS[Math.floor(Math.random() * NATO_WORDS.length)]);
+      }
+      document.getElementById('nato-display').textContent = secretNatoSequence.join(' - ');
+
+      // Rule calculation
+      if (secretNatoSequence.includes('DELTA') || secretNatoSequence.includes('ZULU')) {
+        targetNatoColor = 'AMARILLO';
+      } else if (['A', 'E', 'I', 'O', 'U'].includes(secretNatoSequence[0][0])) {
+        targetNatoColor = 'AZUL';
+      } else if (secretNatoSequence.includes('BRAVO') || secretNatoSequence.includes('CHARLIE')) {
+        targetNatoColor = 'BLANCO';
+      } else if (secretNatoSequence[2].length >= 6) {
+        targetNatoColor = 'ROJO';
+      } else {
+        targetNatoColor = 'VERDE';
+      }
+    }
+
+    function pressNatoColor(color) {
+      if (gameState !== 'RUNNING') return;
+      playClick();
+      if (color === targetNatoColor) {
+        setModuleSolved(1);
+      } else {
+        registerStrike();
+      }
+    }
+
+    /* ===================================================================
+       MODULE 3: MATRIZ TAP LOGIC
+       =================================================================== */
+    function setupTapModule() {
+      userTapInputs = [];
+      updateTapStepIndicators();
+
+      const c1 = Math.floor(Math.random() * 9) + 1;
+      let c2 = Math.floor(Math.random() * 9) + 1;
+      while (c2 === c1) c2 = Math.floor(Math.random() * 9) + 1;
+
+      secretTapSequence = [c1, c2];
+
+      const r1 = Math.ceil(c1 / 3), col1 = ((c1 - 1) % 3) + 1;
+      const r2 = Math.ceil(c2 / 3), col2 = ((c2 - 1) % 3) + 1;
+
+      if (r1 === r2) {
+        requiredTapAnswers = [c2, c1];
+      } else if (col1 === col2) {
+        requiredTapAnswers = [5, c1];
+      } else {
+        requiredTapAnswers = [c1, c2];
+      }
+
+      setTimeout(() => playTapSequence(), 500);
+    }
+
+    function playTapSequence() {
+      if (gameState !== 'RUNNING') return;
+      const pos = activeModuleIndices.indexOf(2);
+      if (pos === -1 || solvedModulesState[pos]) return;
+
+      const [c1, c2] = secretTapSequence;
+      const btn1 = document.getElementById(`tap-cell-${c1}`);
+      const btn2 = document.getElementById(`tap-cell-${c2}`);
+
+      setTimeout(() => {
+        btn1.classList.add('bg-purple-500', 'text-white', 'glow-purple', 'scale-105');
+        playBeep(500, 0.15, 'triangle');
+      }, 200);
+
+      setTimeout(() => {
+        btn1.classList.remove('bg-purple-500', 'text-white', 'glow-purple', 'scale-105');
+      }, 650);
+
+      setTimeout(() => {
+        btn2.classList.add('bg-purple-500', 'text-white', 'glow-purple', 'scale-105');
+        playBeep(700, 0.15, 'triangle');
+      }, 950);
+
+      setTimeout(() => {
+        btn2.classList.remove('bg-purple-500', 'text-white', 'glow-purple', 'scale-105');
+      }, 1400);
+    }
+
+    function pressTapCell(cellNum) {
+      if (gameState !== 'RUNNING') return;
+      playClick();
+      userTapInputs.push(cellNum);
+      updateTapStepIndicators();
+
+      if (userTapInputs.length === 2) {
+        if (userTapInputs[0] === requiredTapAnswers[0] && userTapInputs[1] === requiredTapAnswers[1]) {
+          setModuleSolved(2);
+        } else {
+          registerStrike();
+          userTapInputs = [];
+          setTimeout(updateTapStepIndicators, 300);
+        }
+      }
+    }
+
+    function updateTapStepIndicators() {
+      const step1 = document.getElementById('tap-step-1');
+      const step2 = document.getElementById('tap-step-2');
+      step1.className = userTapInputs.length >= 1 ? 'w-2.5 h-2.5 rounded-full bg-purple-500 glow-purple' : 'w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700';
+      step2.className = userTapInputs.length >= 2 ? 'w-2.5 h-2.5 rounded-full bg-purple-500 glow-purple' : 'w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700';
+    }
+
+    /* ===================================================================
+       MODULE 4: CABLES TÁCTICOS LOGIC
+       =================================================================== */
+    function setupWiresModule() {
+      const availableColors = ['Rojo', 'Azul', 'Amarillo', 'Negro', 'Blanco'];
+      wireColorsList = [];
+      for (let i = 0; i < 5; i++) {
+        wireColorsList.push(availableColors[Math.floor(Math.random() * availableColors.length)]);
+      }
+      wireCutState = [false, false, false, false, false];
+
+      const leds = ['ROJO', 'AZUL', 'VERDE'];
+      wireStatusLed = leds[Math.floor(Math.random() * leds.length)];
+
+      const ledEl = document.getElementById('wire-status-led');
+      if (wireStatusLed === 'ROJO') ledEl.className = 'w-4 h-4 rounded-full bg-red-600 glow-red';
+      else if (wireStatusLed === 'AZUL') ledEl.className = 'w-4 h-4 rounded-full bg-blue-600 glow-amber';
+      else ledEl.className = 'w-4 h-4 rounded-full bg-emerald-500 glow-emerald';
+
+      // Rules:
+      // 1. LED ROJO: Cut 1st wire if Serial ends in EVEN number, else cut 4th (Negro)
+      const lastChar = serialNumber[serialNumber.length - 1];
+      const isLastEven = (!isNaN(parseInt(lastChar)) && parseInt(lastChar) % 2 === 0);
+      const hasVowelInSerial = /[AEIOU]/.test(serialNumber);
+      const redCount = wireColorsList.filter(c => c === 'Rojo').length;
+
+      if (wireStatusLed === 'ROJO') {
+        correctWireIndex = isLastEven ? 0 : 3;
+      } else if (wireStatusLed === 'AZUL') {
+        correctWireIndex = (redCount >= 2) ? 4 : 1;
+      } else { // VERDE
+        correctWireIndex = hasVowelInSerial ? 2 : 4;
+      }
+
+      renderWiresUI();
+    }
+
+    function renderWiresUI() {
+      const container = document.getElementById('wires-container');
+      container.innerHTML = '';
+      
+      const colorMap = {
+        'Rojo': 'bg-red-600 border-red-400',
+        'Azul': 'bg-blue-600 border-blue-400',
+        'Amarillo': 'bg-amber-400 border-amber-200',
+        'Negro': 'bg-slate-950 border-slate-600',
+        'Blanco': 'bg-slate-100 border-slate-300'
+      };
+
+      wireColorsList.forEach((color, idx) => {
+        const wireBtn = document.createElement('button');
+        wireBtn.onclick = () => cutWire(idx);
+        
+        if (wireCutState[idx]) {
+          // Cut wire visual representation
+          wireBtn.className = 'w-5 h-full flex flex-col items-center justify-between opacity-30 cursor-not-allowed';
+          wireBtn.innerHTML = `
+            <div class="w-3 h-[40%] ${colorMap[color]} rounded-b"></div>
+            <span class="text-[9px] text-red-500 font-mono-tech">✂️</span>
+            <div class="w-3 h-[40%] ${colorMap[color]} rounded-t"></div>
+          `;
+        } else {
+          wireBtn.className = 'w-5 h-full flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition cursor-pointer';
+          wireBtn.innerHTML = `
+            <div class="w-3 h-full ${colorMap[color]} rounded border-x shadow-md"></div>
+          `;
+        }
+        container.appendChild(wireBtn);
+      });
+    }
+
+    function cutWire(idx) {
+      if (gameState !== 'RUNNING') return;
+      if (wireCutState[idx]) return;
+
+      wireCutState[idx] = true;
+      playClick();
+      renderWiresUI();
+
+      if (idx === correctWireIndex) {
+        setModuleSolved(3);
+      } else {
+        registerStrike();
+      }
+    }
+
+    /* ===================================================================
+       MODULE 5: INTERRUPTORES BINARIOS LOGIC
+       =================================================================== */
+    function setupBinaryModule() {
+      binaryTargetVal = Math.floor(Math.random() * 15) + 1; // 1 to 15
+      document.getElementById('binary-target-display').textContent = `VALOR OBJETIVO: ${binaryTargetVal}`;
+      binaryUserSwitches = [0, 0, 0, 0];
+      updateBinarySwitchesUI();
+    }
+
+    function toggleBinarySwitch(idx) {
+      if (gameState !== 'RUNNING') return;
+      playClick();
+      binaryUserSwitches[idx] = binaryUserSwitches[idx] === 1 ? 0 : 1;
+      updateBinarySwitchesUI();
+    }
+
+    function updateBinarySwitchesUI() {
+      binaryUserSwitches.forEach((val, idx) => {
+        const btn = document.getElementById(`switch-${idx}`);
+        const valSpan = document.getElementById(`sw-val-${idx}`);
+        valSpan.textContent = val;
+        if (val === 1) {
+          btn.className = 'py-3 bg-emerald-600/30 text-emerald-400 border border-emerald-500 rounded flex flex-col items-center font-mono-tech text-xs transition glow-emerald';
+        } else {
+          btn.className = 'py-3 bg-slate-950 text-slate-400 border border-slate-700 rounded flex flex-col items-center font-mono-tech text-xs transition';
+        }
+      });
+    }
+
+    function submitBinary() {
+      if (gameState !== 'RUNNING') return;
+      const currentSum = (binaryUserSwitches[0] * 8) + (binaryUserSwitches[1] * 4) + (binaryUserSwitches[2] * 2) + (binaryUserSwitches[3] * 1);
+      if (currentSum === binaryTargetVal) {
+        setModuleSolved(4);
+      } else {
+        registerStrike();
+      }
+    }
+
+    /* ===================================================================
+       MODULE 6: FLECHAS / SEMÁFORO TÁCTICO LOGIC
+       =================================================================== */
+    function setupArrowsModule() {
+      const dirs = ['UP', 'DOWN', 'LEFT', 'RIGHT'];
+      const arrowSymbol = { 'UP': '⬆️', 'DOWN': '⬇️', 'LEFT': '⬅️', 'RIGHT': '➡️' };
+      
+      arrowSequence = [
+        dirs[Math.floor(Math.random() * 4)],
+        dirs[Math.floor(Math.random() * 4)],
+        dirs[Math.floor(Math.random() * 4)]
+      ];
+
+      document.getElementById('arrow-sequence-display').textContent = arrowSequence.map(d => arrowSymbol[d]).join(' ');
+
+      // Rule calculation:
+      const upRightCount = arrowSequence.filter(d => d === 'UP' || d === 'RIGHT').length;
+      if (upRightCount >= 2) {
+        targetDirection = 'DOWN';
+      } else if (arrowSequence[0] === arrowSequence[2]) {
+        targetDirection = 'UP';
+      } else if (arrowSequence.includes('LEFT')) {
+        targetDirection = 'RIGHT';
+      } else {
+        targetDirection = 'LEFT';
+      }
+    }
+
+    function pressDirection(dir) {
+      if (gameState !== 'RUNNING') return;
+      playClick();
+      if (dir === targetDirection) {
+        setModuleSolved(5);
+      } else {
+        registerStrike();
+      }
+    }
+
+    /* ===================================================================
+       MODAL CONTROLS
+       =================================================================== */
+    function openManual() {
+      document.getElementById('manual-modal').classList.remove('hidden');
+    }
+
+    function closeManual() {
+      document.getElementById('manual-modal').classList.add('hidden');
+    }
+
+    function closeVictoryModal() {
+      document.getElementById('modal-victory').classList.add('hidden');
+    }
+
+    function closeDefeatModal() {
+      document.getElementById('modal-defeat').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
